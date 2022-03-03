@@ -1,0 +1,13 @@
+
+body {
+  margin: 0;
+  overscroll-behavior-y: none;
+  font-family: Josefin Sans, Hind;
+
+  font-size: 0;
+}
+
+body * {
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
