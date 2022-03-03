@@ -20,7 +20,10 @@
             let
                 cursor $ []
                 states $ :states store
-                unit 80
+                unit 77
+                unit-lean $ / 80
+                  w-log $ js/Math.sin
+                    * &PI $ / 78 180
               container ({})
                 graphics $ {}
                   :ops $ []
@@ -32,7 +35,7 @@
                           []
                             g :move-to $ [] 0 (* idx unit)
                             g :line-to $ [] 1600 (* idx unit)
-                  :alpha 1
+                  :alpha 0.3
                   :position $ [] (* -0.5 js/window.innerWidth) (* -0.5 js/window.innerHeight)
                 graphics $ {}
                   :ops $ []
@@ -42,14 +45,22 @@
                       -> (range 0 16)
                         mapcat $ fn (idx)
                           []
-                            g :move-to $ [] (* idx unit) 1000
+                            g :move-to $ [] (* idx unit-lean) 1000
                             g :line-to $ []
-                              + (* idx unit)
+                              + (* idx unit-lean)
                                 * 1000 $ js/Math.tan
-                                  * &PI $ / 22 180
+                                  * &PI $ / 12 180
                               , 0
-                  :alpha 1
+                  :alpha 0.3
                   :position $ [] (* -0.5 js/window.innerWidth) (* -0.5 js/window.innerHeight)
+                ; graphics $ {}
+                  :ops $ []
+                    g :line-style $ {} (:width 1) (:alpha 1)
+                      :color $ hslx 240 100 83
+                    g :move-to $ [] 0 0
+                    g :line-to $ [] 0 1000
+                  :alpha 0.3
+                  :position $ [] -10 (* -0.5 js/window.innerHeight)
     |app.schema $ {}
       :ns $ quote (ns app.schema)
       :defs $ {}
