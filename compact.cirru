@@ -20,11 +20,36 @@
             let
                 cursor $ []
                 states $ :states store
+                unit 80
               container ({})
-                text $ {} (:text "\"DEMO")
-                  :position $ [] 100 100
-                  :style $ {}
-                    :fill $ hslx 0 0 80
+                graphics $ {}
+                  :ops $ []
+                    g :line-style $ {} (:width 1) (:alpha 1)
+                      :color $ hslx 240 100 83
+                    , &
+                      -> (range 0 20)
+                        mapcat $ fn (idx)
+                          []
+                            g :move-to $ [] 0 (* idx unit)
+                            g :line-to $ [] 1600 (* idx unit)
+                  :alpha 1
+                  :position $ [] (* -0.5 js/window.innerWidth) (* -0.5 js/window.innerHeight)
+                graphics $ {}
+                  :ops $ []
+                    g :line-style $ {} (:width 1) (:alpha 1)
+                      :color $ hslx 240 100 83
+                    , &
+                      -> (range 0 16)
+                        mapcat $ fn (idx)
+                          []
+                            g :move-to $ [] (* idx unit) 1000
+                            g :line-to $ []
+                              + (* idx unit)
+                                * 1000 $ js/Math.tan
+                                  * &PI $ / 22 180
+                              , 0
+                  :alpha 1
+                  :position $ [] (* -0.5 js/window.innerWidth) (* -0.5 js/window.innerHeight)
     |app.schema $ {}
       :ns $ quote (ns app.schema)
       :defs $ {}
@@ -64,13 +89,15 @@
       :defs $ {}
         |render-app! $ quote
           defn render-app! (? arg)
-            render! (comp-container @*store) dispatch! $ or arg ({})
+            render! (comp-container @*store) dispatch! $ or arg
+              {} $ :background-alpha 0
         |main! $ quote
           defn main! () (; js/console.log PIXI)
             if dev? $ load-console-formatter!
             -> (new FontFaceObserver/default "\"Josefin Sans") (.!load)
               .!then $ fn (event) (render-app!)
             add-watch *store :change $ fn (store prev) (render-app!)
+            js/window.addEventListener "\"resize" $ fn (event) (render-app!)
             println "\"App Started"
         |*store $ quote (defatom *store schema/store)
         |dispatch! $ quote

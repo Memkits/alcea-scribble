@@ -1,14 +1,12 @@
 
-Phlox workflow in [calcit-js](http://calcit-lang.org/)
+Alcea Scribble
 ----
+
+scribe shapes...
 
 ### Usage
 
-```bash
-yarn
-cr --emit-js -1
-yarn vite
-```
+_TODO_
 
 ### Workflow
 
