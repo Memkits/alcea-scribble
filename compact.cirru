@@ -13,6 +13,7 @@
           phlox.comp.drag-point :refer $ comp-drag-point
           respo-ui.core :as ui
           memof.alias :refer $ memof-call
+          phlox.complex :as complex
       :defs $ {}
         |comp-container $ quote
           defn comp-container (store)
@@ -21,15 +22,7 @@
                 cursor $ []
                 states $ :states store
               container ({})
-                create-list :container ({})
-                  -> (range -3 3)
-                    map $ fn (j)
-                      [] j $ create-list :container ({})
-                        -> (range -10 10)
-                          map $ fn (idx)
-                            [] idx $ comp-cloud
-                              {} $ :position
-                                [] (* idx 100) (* j 100)
+                comp-spiral $ {}
         |comp-cloud $ quote
           defn comp-cloud (options)
             graphics $ {}
@@ -46,8 +39,37 @@
                         g :line-to $ []
                           * r $ cos angle
                           * r $ sin angle
-              :alpha 0.3
+              :alpha 0.2
               :position $ :position options
+        |comp-spiral $ quote
+          defn comp-spiral (options)
+            graphics $ {}
+              :ops $ let
+                  trail $ gen-spiral-trail 20 600
+                []
+                  g :line-style $ {} (:width 3) (:alpha 1)
+                    :color $ hslx 260 100 70
+                  g :move-to $ first trail
+                  , & $ -> trail rest
+                    map $ fn (p) (g :line-to p)
+              :alpha 0.2
+              :position $ :position options
+        |gen-spiral-trail $ quote
+          defn gen-spiral-trail (from to)
+            -> (range from to)
+              map $ fn (idx)
+                let
+                    angle $ * 0.03 idx
+                    r $ * 0.6 idx
+                    angle2 $ * 6 angle
+                    r2 60
+                  complex/add
+                    []
+                      * r $ cos angle
+                      * r $ sin angle
+                    []
+                      * r2 $ cos angle2
+                      * r2 $ sin angle2
     |app.schema $ {}
       :ns $ quote (ns app.schema)
       :defs $ {}
@@ -95,7 +117,8 @@
             -> (new FontFaceObserver/default "\"Josefin Sans") (.!load)
               .!then $ fn (event) (render-app!)
             add-watch *store :change $ fn (store prev) (render-app!)
-            js/window.addEventListener "\"resize" $ fn (event) (render-app!)
+            set! (.-resize js/window.addEventListener)
+              fn (event) (render-app!)
             println "\"App Started"
         |*store $ quote (defatom *store schema/store)
         |dispatch! $ quote
@@ -111,6 +134,8 @@
           defn reload! () $ if (nil? build-errors)
             do (println "\"Code updated.") (clear-phlox-caches!) (remove-watch *store :change)
               add-watch *store :change $ fn (store prev) (render-app!)
+              set! (.-resize js/window.addEventListener)
+                fn (event) (render-app!)
               render-app!
               hud! "\"ok~" "\"Ok"
             hud! "\"error" build-errors
