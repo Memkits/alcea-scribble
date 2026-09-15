@@ -1,8 +1,8 @@
 
-{} (:calcit-version |0.14.16) (:version |0.4.10)
-  :dependencies $ {}
-    |Phlox-GL/phlox |0.7.7
-    |Respo/respo-ui.calcit |0.7.19
-    |Respo/respo.calcit |0.16.95
+{} (:calcit-version |0.14.17)
+  :version |0.4.10
+  :dependencies $ {} (|Phlox-GL/phlox |0.7.8)
+    |Respo/respo-ui.calcit |0.7.23
+    |Respo/respo.calcit |0.16.102
     |calcit-lang/lilac |0.5.9
-    |calcit-lang/memof |0.0.31
+    |calcit-lang/memof |0.0.33
