@@ -12,6 +12,18 @@ _TODO_
 
 https://github.com/Phlox-GL/phlox-workflow
 
+### Development
+
+Use Calcit/procs 0.27.0, `caps --ci`, `yarn install --immutable`,
+`yarn build`, and `node --test tests/*.test.mjs`. Only `calcit.cirru` and
+`deps.cirru` are canonical; CI rejects retired `compact.cirru` / `package.cirru`.
+The published Phlox dependency graph still requests conflicting js-ffi versions,
+so strict Caps resolution is pending upstream alignment, not claimed complete
+([Phlox #62](https://github.com/Phlox-GL/phlox/issues/62)).
+Generated frontend HTML is checked against its selected CDN prefix; public
+upload verification stays inside cos-upload-action. Original server deployment
+paths, external fonts and the actual spiral drawing remain unchanged.
+
 ### License
 
 MIT
