@@ -20,8 +20,8 @@ Use Calcit/procs 0.27.0, `caps --ci`, `yarn install --immutable`,
 The published Phlox dependency graph still requests conflicting js-ffi versions,
 so strict Caps resolution is pending upstream alignment, not claimed complete
 ([Phlox #62](https://github.com/Phlox-GL/phlox/issues/62)).
-Generated frontend HTML is checked against its selected CDN prefix; public
-upload verification stays inside cos-upload-action. Original server deployment
+Public upload verification uses cos-upload-action's built-in verify settings,
+with no extra CDN checker. Original server deployment
 paths, external fonts and the actual spiral drawing remain unchanged.
 
 ### License
