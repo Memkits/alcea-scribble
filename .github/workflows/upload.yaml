@@ -43,6 +43,7 @@ jobs:
         set -euo pipefail
         caps --ci
         yarn install --immutable
+        caps verify --toolchain
 
     - name: Validate Calcit snapshot and types
       run: |
@@ -54,6 +55,9 @@ jobs:
         calcit calcit.cirru edit format
         git diff --exit-code -- calcit.cirru
         calcit calcit.cirru --check-only
+        calcit calcit.cirru analyze check-public \
+          --ns app.comp.container --ns app.config --ns app.main \
+          --ns app.schema --ns app.updater --summary-only --format json
 
     - name: Select CDN asset path
       id: asset-path
@@ -63,7 +67,7 @@ jobs:
       run: |
         set -euo pipefail
         if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
-          asset_prefix="${GITHUB_REPOSITORY}/pr/${PR_NUMBER}/"
+          asset_prefix="${GITHUB_REPOSITORY}/pr/${PR_NUMBER}/${GITHUB_RUN_ID}/${GITHUB_RUN_ATTEMPT}/"
         else
           asset_prefix="${GITHUB_REPOSITORY}/"
         fi
