@@ -24,6 +24,13 @@ Public upload verification uses cos-upload-action's built-in verify settings,
 with no extra CDN checker. Original server deployment
 paths, external fonts and the actual spiral drawing remain unchanged.
 
+`yarn dev` compiles Calcit once before starting Vite. For live Calcit edits, run
+`calcit calcit.cirru js -w` in another terminal; no process manager is needed.
+Builds use `VITE_BASE_URL`, defaulting to relative URLs locally. PR previews use
+`pr/<number>/<run-id>/<attempt>/` to isolate uploads, while the production prefix
+stays unchanged. The COS action's built-in verification replaces the standalone
+CDN build test; all spiral, drawing-command and updater business tests remain.
+
 ### License
 
 MIT
