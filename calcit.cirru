@@ -5,7 +5,7 @@
   :entries $ {} $ :default
     {} (:description |) (:init-fn 'app.main/main!) (:mode :js) (:reload-fn 'app.main/reload!) (:target :browser)
       :feature-policy $ {}
-      :modules $ [] |memof/ |respo.calcit/ |respo-ui.calcit/ |phlox/
+      :modules $ [] |phlox/
       :type-slots $ {}
   :files $ {}
     'app.comp.container $ %{} 'FileEntry
@@ -49,7 +49,9 @@
                 []
                   g :line-style $ {} (:width 3) (:alpha 1)
                     :color $ hslx 260 100 70
-                  g :move-to $ first trail
+                  g :move-to $
+                    first trail
+                    , .unwrap
                   , & $ -> trail rest $ map
                     fn (p) (g :line-to p)
               :alpha 0.2
@@ -83,8 +85,6 @@
             phlox.core :refer $ g hslx rect circle text container graphics create-list >>
             phlox.comp.button :refer $ comp-button
             phlox.comp.drag-point :refer $ comp-drag-point
-            respo-ui.core :as ui
-            memof.alias :refer $ memof-call
             phlox.complex :as complex
     'app.config $ %{} 'FileEntry
       :defs $ {}
