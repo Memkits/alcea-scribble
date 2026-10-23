@@ -92,7 +92,7 @@
       :defs $ {}
         'dev? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def dev?
-            = |dev $ option:unwrap-or (get-env |mode) |release
+            = |dev $ .unwrap-or (get-env |mode) |release
           :examples $ []
           :schema $ :: 'Bool
         'site $ %{} 'CodeEntry (:doc |)
@@ -184,7 +184,7 @@
               (:add-x _)
                 assoc store :x $ let
                     x $ decode-map-as
-                      option:unwrap-or (get store :x) 0
+                      .unwrap-or (get store :x) 0
                       , 'Number
                   if (> x 10) 0 $ + x 1
               (:tab data) (assoc store :tab data)

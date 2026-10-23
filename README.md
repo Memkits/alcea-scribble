@@ -14,10 +14,14 @@ https://github.com/Phlox-GL/phlox-workflow
 
 ### Development
 
-使用者注意：CLI / procs 必须配对为已发布的 **0.30.1-alpha.4**，不是尚未发布的
-0.30.1 稳定版。依赖 Phlox 0.7.14 及其正式模块依赖；螺旋坐标、绘图命令、
+使用者注意：CLI / procs 必须配对为正式 **0.30.1**，升级后重新安装依赖、重启
+开发服务并刷新页面，不混用旧 runtime。依赖 Phlox 0.7.17 及其正式模块依赖；
+Pixi 保持 7 系列并更新到 7.4.3，bottom-tip 固定正式 0.1.5。螺旋坐标、绘图命令、
 状态 Map、字体与生产路径不变。移除旧 Unit 占位类型，组件直接返回实际
 `phlox.schema/PhloxElement`；开放操作的 payload 按实际使用处检查，不新增强转。
+本轮通过官方受保护事务迁移两处旧 Option helper，所有 schema、原四项业务
+测试和两处页面 hud! 保留；不为消除报告中的 Dynamic 而猜测异构状态类型。
+正式 Linux CI 与同源实际画面验收待完成，不把依赖清单更新当作迁移完成。
 
 Use `caps --strict --ci`, `yarn install --immutable`, `caps verify --toolchain`,
 `yarn build`, and `node --test tests/*.test.mjs`. Only `calcit.cirru` and
