@@ -1,0 +1,53 @@
+name: Prepare isolated Alcea acceptance
+on:
+  push:
+    branches: [prepare/alcea-scribble-runtime031]
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6.5.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - run: corepack enable && corepack prepare yarn@4.18.0 --activate
+      - uses: calcit-lang/setup-calcit@v1.5.0
+        with:
+          tools: calcit,caps
+          caps-version: "0.1.1"
+          deps-file: deps.cirru
+      - name: Validate exact source and formal dependencies
+        run: |
+          set -euo pipefail
+          mkdir -p acceptance
+          test "$(git hash-object calcit.cirru)" = 4f7e89f83ecb8cf86f3504c99e07199d2357970f
+          caps --strict --ci
+          yarn install --immutable
+          caps verify --toolchain
+          calcit calcit.cirru edit format
+          git diff --exit-code -- calcit.cirru
+          calcit calcit.cirru --check-only --all-defs --format json > acceptance/all-defs.json
+          calcit calcit.cirru fix --workflow strict --verify --format json > acceptance/strict.json
+          jq -e '.data.workflow.status == "passed" and .diagnostics == []' acceptance/strict.json
+          calcit calcit.cirru analyze weak-types --only coverage --format json > acceptance/coverage.json
+      - name: Build original application and retain original four tests
+        env:
+          VITE_BASE_URL: ./
+        run: |
+          set -euo pipefail
+          yarn build
+          node --test tests/*.test.mjs
+          cp -R dist acceptance/dist
+          git diff --exit-code -- calcit.cirru tests/spiral-regression.test.mjs
+      - uses: actions/upload-artifact@v7.0.1
+        if: always()
+        with:
+          name: alcea-acceptance-${{ github.run_id }}-${{ github.run_attempt }}
+          path: acceptance
+          if-no-files-found: error
+          retention-days: 7
