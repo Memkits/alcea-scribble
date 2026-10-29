@@ -14,15 +14,19 @@ https://github.com/Phlox-GL/phlox-workflow
 
 ### Development
 
-使用者注意：CLI / procs 必须配对为正式 **0.30.1**，升级后重新安装依赖、重启
-开发服务并刷新页面，不混用旧 runtime。依赖 Phlox 0.7.17 及其正式模块依赖；
-Pixi 保持 7 系列并更新到 7.4.3，bottom-tip 固定正式 0.1.5。螺旋坐标、绘图命令、
-状态 Map、字体与生产路径不变。移除旧 Unit 占位类型，组件直接返回实际
-`phlox.schema/PhloxElement`；开放操作的 payload 按实际使用处检查，不新增强转。
-本轮通过官方受保护事务迁移两处旧 Option helper，所有 schema、原四项业务
-测试和两处页面 hud! 保留；不为消除报告中的 Dynamic 而猜测异构状态类型。
-正式 Linux CI 已通过 168 个定义检查、完整 strict 和原四项 Node 回归；
-同一构建产物已在本地实际打开并刷新，螺旋正常绘制，浏览器无警告或错误。
+使用者注意：CLI / procs 必须配对正式 **0.32.1**，重新安装依赖、重启开发服务并刷新页面。
+正式依赖图为 Phlox 0.8.0，传递 Touch Control 0.0.35 / JS FFI 0.2.9 /
+Pointed Prompt 0.0.24。Pixi 仍为 7.4.3，bottom-tip 仍为正式 0.1.5。
+13 个定义的代码、schema、测试和示例与迁移前相同；只由官方 CLI 规范 Snapshot
+存储格式，不重复改写类型。螺旋坐标、绘图命令、状态 Map、字体和两处 `hud!` 保留。
+
+本轮真实 Caps strict、工具链配对、168 个全定义、13 个公开定义、完整 strict
+（diagnostics=[]）、原四项 Node 业务测试、canonical、不可变安装与前端构建通过。
+实际 IAB 初次绘制和刷新后的螺旋正常，warn/error 为空；视口顶部仍裁切部分线条。
+HMR、窗口缩放、移动端和其他浏览器未复验，不把本轮结果用于声明 Phlox #71 已修复。
+Yarn 使用统一 60 分钟依赖年龄门禁，移除过时 procs 0.27.0 豁免。
+COS 与 rsync action 使用已核对指向原提交的精确正式 tag；tag 可移动，沿用已接受的风险。
+只改 action 引用，不改变上传条件、目录、权限或服务器路径。
 
 Use `caps --strict --ci`, `yarn install --immutable`, `caps verify --toolchain`,
 `yarn build`, and `node --test tests/*.test.mjs`. Only `calcit.cirru` and
