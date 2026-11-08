@@ -12,24 +12,25 @@
       :defs $ {}
         'comp-cloud $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-cloud (options)
-            graphics $ {}
-              :ops $ concat
-                []
-                  g :line-style $ {} (:width 3) (:alpha 1)
-                    :color $ hslx 260 100 92
-                  g :move-to $ [] 0 0
-                -> (range 20 250)
-                  map $ fn (idx)
-                    let
-                        angle $ * -0.1 idx
-                        r $ * 0.13 idx
-                      g :line-to $ []
-                        * r $ cos angle
-                        * r $ sin angle
-              :alpha 0.2
-              :position $ match (get options :position)
-                (:some position) position
-                (:none) nil
+            let
+                props $ {}
+                  :ops $ concat
+                    []
+                      g :line-style $ {} (:width 3) (:alpha 1)
+                        :color $ hslx 260 100 92
+                      g :move-to $ [] 0 0
+                    -> (range 20 250)
+                      map $ fn (idx)
+                        let
+                            angle $ * -0.1 idx
+                            r $ * 0.13 idx
+                          g :line-to $ []
+                            * r $ cos angle
+                            * r $ sin angle
+                  :alpha 0.2
+              graphics $ match (get options :position)
+                (:some position) (assoc props :position position)
+                (:none) props
           :examples $ []
           :schema $ quote $ Fn
             Map Tag $ List Number
@@ -40,24 +41,25 @@
             container ({})
               comp-spiral $ {}
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) (-> phlox.schema/PhloxElement)
+          :schema $ quote $ Fn app.schema/Store (-> phlox.schema/PhloxElement)
         'comp-spiral $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn comp-spiral (options)
-            graphics $ {}
-              :ops $ let
-                  trail $ gen-spiral-trail 20 600
-                concat
-                  []
-                    g :line-style $ {} (:width 3) (:alpha 1)
-                      :color $ hslx 260 100 70
-                    g :move-to $
-                      first trail
-                      , .unwrap
-                  -> trail rest $ map $ fn (p) (g :line-to p)
-              :alpha 0.2
-              :position $ match (get options :position)
-                (:some position) position
-                (:none) nil
+            let
+                props $ {}
+                  :ops $ let
+                      trail $ gen-spiral-trail 20 600
+                    concat
+                      []
+                        g :line-style $ {} (:width 3) (:alpha 1)
+                          :color $ hslx 260 100 70
+                        g :move-to $
+                          first trail
+                          , .unwrap
+                      -> trail rest $ map $ fn (p) (g :line-to p)
+                  :alpha 0.2
+              graphics $ match (get options :position)
+                (:some position) (assoc props :position position)
+                (:none) props
           :examples $ []
           :schema $ quote $ Fn
             Map Tag $ List Number
@@ -107,19 +109,17 @@
         '*store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *store schema/store
           :examples $ []
-          :schema $ quote $ Ref (Map Tag Dynamic)
+          :schema $ quote $ Ref app.schema/Store
         'dispatch! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn dispatch! (op)
             when dev? $ println |dispatch! op
             let
                 op-id $ generate-id!
                 op-time $ now-ms
-              if (enum? op)
-                reset! *store $ updater @*store op op-id op-time
-                raise |expected-operation-enum
+              reset! *store $ updater @*store op op-id op-time
               , &unit
           :examples $ []
-          :schema $ quote $ Fn Dynamic (-> Unit)
+          :schema $ quote $ Fn app.schema/Op (-> Unit)
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! () (; js/console.log PIXI)
             if dev? $ load-console-formatter!
@@ -144,7 +144,14 @@
           :schema $ quote $ Fn (-> Unit)
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! ()
-            render! (comp-container @*store) dispatch! $ {} $ :background-alpha 0
+            render! (comp-container @*store)
+              fn (op)
+                if (enum? op)
+                  match (schema/decode-op op)
+                    (:some action) (dispatch! action)
+                    (:none) (println "|unknown op" op)
+                  raise |expected-operation-enum
+              {} $ :background-alpha 0
           :examples $ []
           :schema $ quote $ Fn (-> Unit)
       :ns $ %{} 'NsEntry (:doc |)
@@ -161,14 +168,45 @@
             js-ffi.browser :refer $ add-event-listener!
             js-ffi.shared :refer $ now-ms
     'app.schema $ %{} 'FileEntry
-      :defs $ {} $ 'store
-        %{} 'CodeEntry (:doc |)
-          :code $ quote $ def store
-            {} (:tab :drafts) (:x 0) (:keyboard-on? false) (:counted 0)
-              :states $ {}
-              :cursor $ []
+      :defs $ {}
+        'Op $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defenum Op (:add-x) (:tab Tag) (:toggle-keyboard) (:counted)
+            :states (List Dynamic) Dynamic
+            :hydrate-storage app.schema/Store
           :examples $ []
-          :schema $ quote $ Map Tag Dynamic
+          :schema $ quote EnumDef
+        'Store $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defstruct Store (:tab Tag) (:x Number) (:keyboard-on? Bool) (:counted Number)
+            :states $ Map Tag Dynamic
+            :cursor $ List Dynamic
+          :examples $ []
+          :schema $ quote StructDef
+        'decode-op $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn decode-op (op)
+            match op
+              (:add-x _)
+                Option :some $ Op :add-x
+              (:tab tab)
+                Option :some $ Op :tab $ decode-map-as tab Tag
+              (:toggle-keyboard _)
+                Option :some $ Op :toggle-keyboard
+              (:counted _)
+                Option :some $ Op :counted
+              (:states cursor data)
+                Option :some $ Op :states
+                  decode-map-as cursor $ List Dynamic
+                  , data
+              (:hydrate-storage data)
+                Option :some $ Op :hydrate-storage $ decode-map-as data app.schema/Store
+              _ $ Option :none
+          :examples $ []
+          :schema $ quote $ Fn AnyEnum
+            -> $ Option app.schema/Op
+        'store $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ def store
+            Store :tab :drafts :x 0 :keyboard-on? false :counted 0 :states ({}) :cursor $ []
+          :examples $ []
+          :schema $ quote app.schema/Store
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.schema
     'app.updater $ %{} 'FileEntry
@@ -176,29 +214,21 @@
         %{} 'CodeEntry (:doc |)
           :code $ quote $ defn updater (store op op-id op-time)
             match op
-              (:add-x _)
-                assoc store :x $ let
-                    x $ decode-map-as
-                      .unwrap-or (get store :x) 0
-                      , 'Number
-                  if (> x 10) 0 $ + x 1
-              (:tab data) (assoc store :tab data)
-              (:toggle-keyboard _)
-                update store :keyboard-on? $ fn (value)
-                  not $ decode-map-as value 'Bool
-              (:counted _)
-                update store :counted $ fn (value)
-                  inc $ decode-map-as value 'Number
+              (:add-x)
+                let
+                    x $ :x store
+                  assoc store :x $ if (> x 10) 0 $ + x 1
+              (:tab tab) (assoc store :tab tab)
+              (:toggle-keyboard)
+                assoc store :keyboard-on? $ not $ :keyboard-on? store
+              (:counted)
+                assoc store :counted $ inc $ :counted store
               (:states cursor data)
-                update-states store
-                  decode-map-as cursor $ :: 'List 'Dynamic
-                  , data
-              (:hydrate-storage data)
-                decode-map-as data $ :: 'Map 'Tag 'Dynamic
-              _ $ do (println "|unknown op" op) store
+                assoc store :states $ decode-map-as
+                  assoc-in (:states store) (conj cursor :data) data
+                  Map Tag Dynamic
+              (:hydrate-storage data) data
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) Enum String Number
-            -> $ Map Tag Dynamic
+          :schema $ quote $ Fn app.schema/Store app.schema/Op String Number (-> app.schema/Store)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.updater
-          :require $ phlox.cursor :refer $ update-states
