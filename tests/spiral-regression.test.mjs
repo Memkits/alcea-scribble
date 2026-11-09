@@ -1,16 +1,19 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import * as c from "../js-out/calcit.core.mjs";
-import { store } from "../js-out/app.schema.mjs";
-import { updater } from "../js-out/app.updater.mjs";
+import { decode_op, store } from "../js-out/app.schema.mjs";
+import { updater as update } from "../js-out/app.updater.mjs";
 // Published Phlox initializes browser input state during import. Provide host
 // fixtures only; use the actual generated application and Phlox modules.
 globalThis.window = { navigator: { userAgent: "Node regression fixture" }, innerWidth: 800, innerHeight: 600, addEventListener() {} };
 const { gen_spiral_trail, comp_spiral, comp_cloud, comp_container } = await import("../js-out/app.comp.container.mjs");
 const t = c.init_tags(["keyboard-on?", "counted", "x", "states", "editor", "data", "tab", "props", "ops", "children", "position", "alpha", "move-to", "line-to", "toggle-keyboard", "add-x", "hydrate-storage"]);
-const get = (x, key) => c.option_$o_unwrap(c.get(x, key));
+const get = (x, key) => c.struct_$q_(x)
+  ? c._$n_struct_$o_get(x, key)
+  : c.option_$o_unwrap(c.get(x, key));
 const nth = (x, i) => c.option_$o_unwrap(c.nth(x, i));
 const op = (tag, ...args) => c._$o__$o_(tag, ...args);
+const updater = (state, event, id, time) => update(state, c.option_$o_unwrap(decode_op(event)), id, time);
 test("generated spiral trail preserves exact finite coordinates and bounds", () => {
   const trail = gen_spiral_trail(20, 600);
   assert.equal(c.count(trail), 580);
@@ -56,5 +59,5 @@ test("x wraps at its existing boundary and nested state retains store", () => {
   next = updater(next, op(t.states, c._$L_(t.editor), "draft"), "fixture", 0);
   assert.equal(get(next, t.x), 0);
   assert.equal(get(get(get(next, t.states), t.editor), t.data), "draft");
-  assert.ok(c._$e_(updater(store, op(t["hydrate-storage"], next), "fixture", 0), next));
+  assert.ok(c._$e_(updater(store, op(t["hydrate-storage"], c._$n_struct_$o_to_map(next)), "fixture", 0), next));
 });

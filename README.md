@@ -14,19 +14,11 @@ https://github.com/Phlox-GL/phlox-workflow
 
 ### Development
 
-使用者注意：CLI / procs 必须配对正式 **0.32.1**，重新安装依赖、重启开发服务并刷新页面。
-正式依赖图为 Phlox 0.8.0，传递 Touch Control 0.0.35 / JS FFI 0.2.9 /
-Pointed Prompt 0.0.24。Pixi 仍为 7.4.3，bottom-tip 仍为正式 0.1.5。
-13 个定义的代码、schema、测试和示例与迁移前相同；只由官方 CLI 规范 Snapshot
-存储格式，不重复改写类型。螺旋坐标、绘图命令、状态 Map、字体和两处 `hud!` 保留。
+本地开发使用正式 Calcit 和 `@calcit/procs` **0.38.0**。升级后请重装依赖、重建并刷新。螺旋绘图、字体等待、页面错误 HUD 和前端部署路径保持原行为。
 
-本轮真实 Caps strict、工具链配对、168 个全定义、13 个公开定义、完整 strict
-（diagnostics=[]）、原四项 Node 业务测试、canonical、不可变安装与前端构建通过。
-实际 IAB 初次绘制和刷新后的螺旋正常，warn/error 为空；视口顶部仍裁切部分线条。
-HMR、窗口缩放、移动端和其他浏览器未复验，不把本轮结果用于声明 Phlox #71 已修复。
-Yarn 使用统一 60 分钟依赖年龄门禁，移除过时 procs 0.27.0 豁免。
-COS 与 rsync action 使用已核对指向原提交的精确正式 tag；tag 可移动，沿用已接受的风险。
-只改 action 引用，不改变上传条件、目录、权限或服务器路径。
+正式模块为 Phlox 0.9.3、Touch Control 0.0.39、JS FFI 0.2.13 和 Pointed Prompt 0.0.27。应用内部通过具名 `Store` 和 `Op` 更新状态，Phlox 的匿名事件在渲染入口解码。旧状态 Map 在水合时校验字段并转为 `Store`。未传入绘图位置时由 Pixi 使用默认原点。
+
+Chrome 隔离预览已验证螺旋绘图、刷新和窗口缩放，字体使用本地替身。其他浏览器的显示差异见 [Phlox #71](https://github.com/Phlox-GL/phlox/issues/71)。
 
 Use `caps --strict --ci`, `yarn install --immutable`, `caps verify --toolchain`,
 `yarn build`, and `node --test tests/*.test.mjs`. Only `calcit.cirru` and
