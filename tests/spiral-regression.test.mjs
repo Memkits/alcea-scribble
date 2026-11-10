@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import * as c from "../js-out/calcit.core.mjs";
-import { decode_op, store } from "../js-out/app.schema.mjs";
-import { updater as update } from "../js-out/app.updater.mjs";
+import { Op, store } from "../js-out/app.schema.mjs";
+import { updater } from "../js-out/app.updater.mjs";
 // Published Phlox initializes browser input state during import. Provide host
 // fixtures only; use the actual generated application and Phlox modules.
 globalThis.window = { navigator: { userAgent: "Node regression fixture" }, innerWidth: 800, innerHeight: 600, addEventListener() {} };
@@ -12,8 +12,7 @@ const get = (x, key) => c.struct_$q_(x)
   ? c._$n_struct_$o_get(x, key)
   : c.option_$o_unwrap(c.get(x, key));
 const nth = (x, i) => c.option_$o_unwrap(c.nth(x, i));
-const op = (tag, ...args) => c._$o__$o_(tag, ...args);
-const updater = (state, event, id, time) => update(state, c.option_$o_unwrap(decode_op(event)), id, time);
+const op = (tag, ...args) => c._PCT__$o__$o_(Op, tag, ...args);
 test("generated spiral trail preserves exact finite coordinates and bounds", () => {
   const trail = gen_spiral_trail(20, 600);
   assert.equal(c.count(trail), 580);
@@ -41,23 +40,23 @@ test("spiral drawing commands pass coordinate Lists, not Options", () => {
   assert.ok(c.count(get(get(comp_cloud(c._$n__$M_(t.position, c._$L_(0, 0))), t.props), t.ops)) > 2);
   assert.equal(c.count(get(comp_container(store), t.children)), 1);
 });
-test("keyboard toggling and counter retain update raw-payload semantics", () => {
-  let next = updater(store, op(t["toggle-keyboard"], null), "fixture", 0);
+test("keyboard toggling and counter retain update behavior", () => {
+  let next = updater(store, op(t["toggle-keyboard"]), "fixture", 0);
   assert.equal(get(next, t["keyboard-on?"]), true);
-  next = updater(next, op(t["toggle-keyboard"], null), "fixture", 0);
+  next = updater(next, op(t["toggle-keyboard"]), "fixture", 0);
   assert.equal(get(next, t["keyboard-on?"]), false);
-  next = updater(next, op(t.counted, null), "fixture", 0);
-  next = updater(next, op(t.counted, null), "fixture", 0);
+  next = updater(next, op(t.counted), "fixture", 0);
+  next = updater(next, op(t.counted), "fixture", 0);
   assert.equal(get(next, t.counted), 2);
 });
 test("x wraps at its existing boundary and nested state retains store", () => {
   let next = c.assoc(store, t.x, 10);
-  next = updater(next, op(t["add-x"], null), "fixture", 0);
+  next = updater(next, op(t["add-x"]), "fixture", 0);
   assert.equal(get(next, t.x), 11);
-  next = updater(next, op(t["add-x"], null), "fixture", 0);
+  next = updater(next, op(t["add-x"]), "fixture", 0);
   assert.equal(get(next, t.x), 0);
   next = updater(next, op(t.states, c._$L_(t.editor), "draft"), "fixture", 0);
   assert.equal(get(next, t.x), 0);
   assert.equal(get(get(get(next, t.states), t.editor), t.data), "draft");
-  assert.ok(c._$e_(updater(store, op(t["hydrate-storage"], c._$n_struct_$o_to_map(next)), "fixture", 0), next));
+  assert.ok(c._$e_(updater(store, op(t["hydrate-storage"], next), "fixture", 0), next));
 });
