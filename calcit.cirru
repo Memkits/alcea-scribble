@@ -144,14 +144,7 @@
           :schema $ quote $ Fn (-> Unit)
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! ()
-            render! (comp-container @*store)
-              fn (op)
-                if (enum? op)
-                  match (schema/decode-op op)
-                    (:some action) (dispatch! action)
-                    (:none) (println "|unknown op" op)
-                  raise |expected-operation-enum
-              {} $ :background-alpha 0
+            render! (comp-container @*store) dispatch! $ {} $ :background-alpha 0
           :examples $ []
           :schema $ quote $ Fn (-> Unit)
       :ns $ %{} 'NsEntry (:doc |)
@@ -181,27 +174,6 @@
             :cursor $ List Dynamic
           :examples $ []
           :schema $ quote StructDef
-        'decode-op $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn decode-op (op)
-            match op
-              (:add-x _)
-                Option :some $ Op :add-x
-              (:tab tab)
-                Option :some $ Op :tab $ decode-map-as tab Tag
-              (:toggle-keyboard _)
-                Option :some $ Op :toggle-keyboard
-              (:counted _)
-                Option :some $ Op :counted
-              (:states cursor data)
-                Option :some $ Op :states
-                  decode-map-as cursor $ List Dynamic
-                  , data
-              (:hydrate-storage data)
-                Option :some $ Op :hydrate-storage $ decode-map-as data app.schema/Store
-              _ $ Option :none
-          :examples $ []
-          :schema $ quote $ Fn AnyEnum
-            -> $ Option app.schema/Op
         'store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def store
             Store :tab :drafts :x 0 :keyboard-on? false :counted 0 :states ({}) :cursor $ []
